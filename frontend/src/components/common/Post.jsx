@@ -48,7 +48,7 @@ const Post = ({ post }) => {
 		mutationFn: async () => {
 			try {
 				const res = await fetch(`/api/posts/like/${post._id}`, {
-					method: "POST",
+					method: "PUT",
 				});
 				const data = await res.json();
 				if (!res.ok) {
@@ -82,7 +82,7 @@ const Post = ({ post }) => {
 		mutationFn: async () => {
 			try {
 				const res = await fetch(`/api/posts/comment/${post._id}`, {
-					method: "POST",
+					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
 					},
