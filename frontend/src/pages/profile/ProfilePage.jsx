@@ -5,8 +5,6 @@ import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 
-import { POSTS } from "../../utils/db/dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
@@ -14,8 +12,9 @@ import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 
-import useFollow from "../../hooks/useFollow";
-import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
+import useFollow from "../../hook/useFollowUnfollow";
+import useUpdateUserProfile from "../../hook/useUpdateUserProfile";
+
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -34,7 +33,7 @@ const ProfilePage = () => {
 		data: user,
 		isLoading,
 		refetch,
-		isRefetching,
+		isRefetching
 	} = useQuery({
 		queryKey: ["userProfile"],
 		queryFn: async () => {
@@ -44,6 +43,27 @@ const ProfilePage = () => {
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
+				
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+	});
+
+	const {
+		data: posts,
+	} = useQuery({
+		queryKey: ["posts"],
+		queryFn: async () => {
+			try {
+				const res = await fetch(`/api/users/profile/${username}`);
+				const data = await res.json();
+
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+
 				return data;
 			} catch (error) {
 				throw new Error(error);
@@ -88,7 +108,7 @@ const ProfilePage = () => {
 								</Link>
 								<div className='flex flex-col'>
 									<p className='font-bold text-lg'>{user?.fullName}</p>
-									<span className='text-sm text-slate-500'>{POSTS?.length} posts</span>
+									<span className='text-sm text-slate-500'>{Object.keys(posts)?.length} posts</span>
 								</div>
 							</div>
 							{/* COVER IMG */}
@@ -175,7 +195,7 @@ const ProfilePage = () => {
 											<>
 												<FaLink className='w-3 h-3 text-slate-500' />
 												<a
-													href='https://youtube.com/@asaprogrammer_'
+													href={user?.link}
 													target='_blank'
 													rel='noreferrer'
 													className='text-sm text-blue-500 hover:underline'
